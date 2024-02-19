@@ -2,7 +2,7 @@ import requests
 import time
 
 API_URL = 'https://api.telegram.org/bot'
-BOT_TOKEN = '6911865322:AAHKOcmdQCQIaN7lwTORikSXJhs9_QOVKqs'
+BOT_TOKEN = '6911865322:AAGlbTc2ruf1brgs7i-I8YmHJSmkfyRfBNE'
 CAT_URL = 'https://random.dog/woof.json'
 ERROR_TEXT = 'Здесь должно быть фото собаки.'
 
