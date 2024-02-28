@@ -1,35 +1,29 @@
-import requests
-import time
+from aiogram import Bot, Dispatcher
+from aiogram.filters import BaseFilter
+from aiogram.types import Message
 
-API_URL = 'https://api.telegram.org/bot'
+
 BOT_TOKEN = '6911865322:AAGlbTc2ruf1brgs7i-I8YmHJSmkfyRfBNE'
-CAT_URL = 'https://random.dog/woof.json'
-ERROR_TEXT = 'Здесь должно быть фото собаки.'
 
-offset = -2
-counter = 0
-cat_response: requests.Response
-cat_link: str
-timeout = 100
+bot = Bot(token = BOT_TOKEN)
+dp = Dispatcher()
 
-while counter < 100:
+admin_ids: list[int] = [5210690925]
 
-	print('attempt =', counter)
+class IsAdmin(BaseFilter):
+    def __init__(self, admin_ids: list[int]) -> None:
+        self.admin_ids = admin_ids
 
+    async def __call__(self, message: Message) -> bool:
+        return message.from_user.id in self.admin_ids
 
-	updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}&timeout={timeout}').json()
-	print(updates)
+@dp.message(IsAdmin(admin_ids))
+async def answer_if_admins_update(message: Message):
+    await message.answer(text = 'Вы администратор')
 
-	if updates['result']:
-		for result in updates['result']:
-			offset = result['update_id']
-			chat_id = result['message']['from']['id']
-			cat_response = requests.get(f'{CAT_URL}')
-			if cat_response.status_code == 200:
-				cat_link = cat_response.json()['url']
-				requests.get(f'{API_URL}{BOT_TOKEN}/sendPhoto?chat_id={chat_id}&photo={cat_link}')
-			else:
-				requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={ERROR_TEXT}')
+@dp.message()
+async def answer_if_not_admins_update(message: Message):
+    await message.answer(text = 'Вы не администратор')
 
-	time.sleep(1)
-	counter += 1
+if __name__ == '__main__':
+    dp.run_polling(bot)
